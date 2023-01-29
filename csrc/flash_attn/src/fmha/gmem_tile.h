@@ -499,11 +499,11 @@ struct Gmem_tile_mma_mask {
         const void *ptrs[LDGS_PER_THREAD_PER_WARP];
         uint32_t preds[LDGS_PER_THREAD_PER_WARP];
 
-        #pragma unroll
-        for( int mi = 0; mi < M; mi++ ) {
+        if (!(actual_seqlen_k & 1)) {
             #pragma unroll
-            for( int ni = 0; ni < N; ni++ ) {
-                if (!(actual_seqlen_k & 1)) {
+            for( int mi = 0; mi < M; mi++ ) {
+                #pragma unroll
+                for( int ni = 0; ni < N; ni++ ) {
                     #pragma unroll
                     for ( int ii = 0; ii < 2; ++ii ) {
                         #pragma unroll
@@ -524,7 +524,13 @@ struct Gmem_tile_mma_mask {
                         fct.load(kk, preds[kk]);
                     }
                 }
-                else{
+            }
+        }else{
+            #pragma unroll
+            for( int mi = 0; mi < M; mi++ ) {
+                #pragma unroll
+                for( int ni = 0; ni < N; ni++ ) {
+                    #pragma unroll
                     for ( int ii = 0; ii < 2; ++ii ) {
                         #pragma unroll
                         for (int jj = 0; jj < 2; ++jj ) {
@@ -666,12 +672,17 @@ struct Gmem_tile_mma_bias {
         const void *ptrs[LDGS_PER_THREAD_PER_WARP];
         uint32_t preds[LDGS_PER_THREAD_PER_WARP];
 
-        #pragma unroll
-        for( int mi = 0; mi < M; mi++ ) {
+        // #pragma unroll
+        // for( int mi = 0; mi < M; mi++ ) {
+        //     #pragma unroll
+        //     for( int ni = 0; ni < N; ni++ ) {
+        //         #pragma unroll
+        if (!(actual_seqlen_k & 1)) {
             #pragma unroll
-            for( int ni = 0; ni < N; ni++ ) {
+            for( int mi = 0; mi < M; mi++ ) {
                 #pragma unroll
-                if (!(actual_seqlen_k & 1)) {
+                for( int ni = 0; ni < N; ni++ ) {
+                    #pragma unroll
                     for ( int ii = 0; ii < 2; ++ii ) {
                         #pragma unroll
                         for (int jj = 0; jj < 2; ++jj ) {
@@ -691,7 +702,13 @@ struct Gmem_tile_mma_bias {
                     for(int kk = 0; kk < LDGS_PER_THREAD_PER_WARP; ++kk ) {
                         fct.load(kk, preds[kk]);
                     }
-                }else{
+                }
+            }
+        }else{
+            #pragma unroll
+            for( int mi = 0; mi < M; mi++ ) {
+                #pragma unroll
+                for( int ni = 0; ni < N; ni++ ) {
                     #pragma unroll
                     for ( int ii = 0; ii < 2; ++ii ) {
                         #pragma unroll
@@ -831,12 +848,12 @@ struct Gmem_tile_mma_ds {
         uint32_t preds;
         uint32_t dst;
 
-        #pragma unroll
-        for( int mi = 0; mi < M; mi++ ) {
+        if (!(actual_seqlen_k & 1)) {
             #pragma unroll
-            for( int ni = 0; ni < N; ni++ ) {
+            for( int mi = 0; mi < M; mi++ ) {
                 #pragma unroll
-                if (!(actual_seqlen_k & 1)) {
+                for( int ni = 0; ni < N; ni++ ) {
+                    #pragma unroll
                     for ( int ii = 0; ii < 2; ++ii ) {
                         #pragma unroll
                         for (int jj = 0; jj < 2; ++jj ) {
@@ -857,7 +874,13 @@ struct Gmem_tile_mma_ds {
                             }
                         }
                     }
-                }else{
+                }
+            }
+        }else{
+            #pragma unroll
+            for( int mi = 0; mi < M; mi++ ) {
+                #pragma unroll
+                for( int ni = 0; ni < N; ni++ ) {
                     #pragma unroll
                     for ( int ii = 0; ii < 2; ++ii ) {
                         #pragma unroll
